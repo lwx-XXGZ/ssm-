@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+ 	<!-- 定义事务管理器 -->
+     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    	<!--配置AOP开启事务代理使得aop注解生效-->
+    	<aop:aspectj-autoproxy />
+    <!-- Sprin常用事务类型：
+    		REQUIRED   支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择
+    		SUPPORTS   支持当前事务，如果当前没事务，就以非事务方式执行。
+    		MANDATORY  支持当前事务，如光当前没事务，就抛出异常
+    		REQUIRES_NEW  新建事务，如果当前有事务，就挂起
+    		NOT_SUPPORTED 以非事务的方式执行操作，如果当前存在事务，就把当前事务挂起
+    		NEVER      以非事务方式执行，如果当前存在事务，就抛异常
+     -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="find*" propagation="SUPPORTS" />
+            <tx:method name="add*" propagation="REQUIRED" />
+            <tx:method name="del*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="*" propagation="REQUIRED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="serviceMethod" expression="execution(* com.service.*.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethod" />
+    </aop:config> 
+    <tx:annotation-driven/>
+</beans>
+    <!-- 用注解的方式添加事务
+    	@Transactional:加在方法上表示给当前方法加事务，加在类上表示给类的所有方法加事务
+    	前提是配置事务管理器并且spring文件要加上<tx:annotation-driven/>
+     -->
+     <!-- Spring中Bean的作用域
+     	1、默认值是singleton：
+     		a、就是单例模式
+     		b、每次索要bean的时候，返回的都是同一个对象
+     		c、在容器启动的时候，就创建好该对象
+     	2、原型模式prototype
+     		a、你什么时候用，就什么时候构建这个对象
+     		b、你用了几次，就给你构建几次这个对象，用完马上销毁，所以每次都是新对象
+     		c、通过修改scope设置为prototype
+      -->

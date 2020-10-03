@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<!-- 配置数据源，以dbcp数据源作为连接池 -->
+	<!-- 整合别人的优秀资源拿过来用 -->
+	 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" >
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.pwd}" />
+        <!-- 使用jndi数据源 -->
+        <!-- <property name="jndiName" value="java:comp/env/jdbc/zbc" /> -->
+    </bean>
+   	<!-- 配置SqlSessionFactoryBean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 引用数据源组件 -->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 引用MyBatis配置文件中的配置 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+        <!-- 配置SQL映射文件信息 -->
+        <property name="mapperLocations">
+            <list>
+                <value>com/springmvc/dao/*.xml</value>
+            </list>
+        </property>
+    </bean>
+     <!-- 配置dao
+   	<bean id="tea" class="com.dao.Impl.TeacherDaoImpl">
+   		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+   	</bean> -->
+</beans>
+    
